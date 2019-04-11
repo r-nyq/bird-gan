@@ -131,5 +131,5 @@ for epoch in range(25):
             img_id = fake_image_vis.images(fake.data)
     vis.close(win=gen_id)
     vis.close(win=dis_id)
-    epoch_plotter.plot('gen_loss', 'train', 'Generator Loss', epoch, gen_err.data.avg)
-    epoch_plotter.plot('dis_loss', 'train', 'Discriminator Loss', epoch, dis_err.data.avg)
+    epoch_plotter.plot('gen_loss', 'train', 'Generator Loss', epoch, gen_err.data.mean())
+    epoch_plotter.plot('dis_loss', 'train', 'Discriminator Loss', epoch, dis_err.data.mean())
