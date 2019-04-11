@@ -1,4 +1,6 @@
 from __future__ import print_function
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -9,8 +11,37 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.autograd import Variable
 
+from visdom import Visdom
+
 import generator
 import discriminator
+
+class VisdomLinePlotter(object):
+    """Plots to Visdom"""
+    def __init__(self, env_name='main', xlabel='Epochs'):
+        self.viz = Visdom()
+        self.env = env_name
+        self.xlabel = xlabel
+        self.plots = {}
+    def plot(self, var_name, split_name, title_name, x, y):
+        if var_name not in self.plots:
+            self.plots[var_name] = self.viz.line(X=np.array([x,x]),
+                Y=np.array([y,y]),
+                env=self.env,
+                opts=dict(
+                    legend=[split_name],
+                    title=title_name,
+                    xlabel=self.xlabel,
+                    ylabel=var_name
+                )
+            )
+        else:
+            self.viz.line(X=np.array([x]),
+                Y=np.array([y]), env=self.env,
+                win=self.plots[var_name],
+                name=split_name,
+                update = 'append')
+
 
 batchSize = 64
 imageSize = 64
@@ -52,7 +83,15 @@ dis_optimizer = optim.Adam(discriminator_net.parameters(),
                         lr = 0.0002,
                         betas = (0.5, 0.999))
 
+epoch_plotter = VisdomLinePlotter(env_name='Train Plots')
+
+real_image_vis = Visdom(env='Train Plots')
+vis = Visdom(env='Train Plots')
+
 for epoch in range(25):
+    fake_image_vis = Visdom(env='Train Plots')
+    vis.text('Epoc #' + str(epoch))
+    iteration_plotter = VisdomLinePlotter(env_name='Train Plots', xlabel='Iteration')
     for i, data in enumerate(dataloader, 0):
         discriminator_net.zero_grad()
         real, _ = data
@@ -62,7 +101,7 @@ for epoch in range(25):
         dis_err_real = criterion(output, target)
         
         noise = Variable(torch.randn(input.size()[0], 100, 1, 1))
-        if i == 1:
+        if i == 0:
             print(noise, noise.size())
         fake = generator_net(noise)
         target = Variable(torch.zeros(input.size()[0]))
@@ -79,9 +118,17 @@ for epoch in range(25):
         gen_err = criterion(output, target)
         gen_err.backward()
         gen_optimizer.step()
+
+        iteration_plotter.plot('gen_loss', 'train', 'Generator Loss', i, gen_err.data[0])
+        iteration_plotter.plot('dis_loss', 'train', 'Discriminator Loss', i, dis_err.data[0])
         
         print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, 25, i, len(dataloader), dis_err.data[0], gen_err.data[0]))
         if i % 100 == 0:
             vutils.save_image(real, '%s/real_samples.png' % "./results", normalize = True)
             fake = generator_net(noise)
             vutils.save_image(fake.data, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize = True)
+            real_image_vis.images(real.data)
+            fake_image_vis.images(fake.data)
+
+    epoch_plotter.plot('gen_loss', 'train', 'Generator Loss', epoch, gen_err.data.avg)
+    epoch_plotter.plot('dis_loss', 'train', 'Discriminator Loss', epoch, dis_err.data.avg)
