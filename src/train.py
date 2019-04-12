@@ -43,7 +43,7 @@ class VisdomLinePlotter(object):
                 update = 'append')
 
 
-batchSize = 64
+batchSize = 16
 imageSize = 128
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -92,6 +92,7 @@ vis = Visdom(env='Train Plots')
 iteration_plotter = VisdomLinePlotter(env_name='Train Plots', xlabel='Iteration')
 
 img_id = None
+img_id2 = None
 for epoch in range(25):
     vis.text('Epoc #' + str(epoch))
     
@@ -121,17 +122,19 @@ for epoch in range(25):
         gen_err.backward()
         gen_optimizer.step()
 
-        gen_id = iteration_plotter.plot('gen_loss', 'train', 'Generator Loss', i, gen_err.data[0])
-        dis_id = iteration_plotter.plot('dis_loss', 'train', 'Discriminator Loss', i, dis_err.data[0])
+        gen_id = iteration_plotter.plot('gen_loss', 'train', 'Generator Loss', i, gen_err.item())
+        dis_id = iteration_plotter.plot('dis_loss', 'train', 'Discriminator Loss', i, dis_err.item())
         
-        print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, 25, i, len(dataloader), dis_err.data[0], gen_err.data[0]))
+        print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, 25, i, len(dataloader), dis_err.item(), gen_err.item()))
         if i % 100 == 0:
             vutils.save_image(real, '%s/real_samples.png' % "./results", normalize = True)
             fake = generator_net(noise)
-            vutils.save_image(fake.data, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize = True)
+            vutils.save_image(fake, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize = True)
             if img_id:
                 vis.close(win=img_id)
-            img_id = fake_image_vis.images(fake.data)
+                vis.close(win=img_id2)
+            img_id = fake_image_vis.images(fake.detach().numpy())
+            img_id2 = fake_image_vis.images(real.detach().numpy())
     vis.close(win=gen_id)
     vis.close(win=dis_id)
     epoch_plotter.plot('gen_loss', 'train', 'Generator Loss', epoch, gen_err.data.mean())
