@@ -107,9 +107,10 @@ for epoch in range(25):
         output = discriminator_net(fake.detach())
         dis_err_fake = criterion(output, target)
         
-        dis_err = dis_err_real + dis_err_fake
-        dis_err.backward()
-        dis_optimizer.step()
+        if i % 20 == 0:
+            dis_err = dis_err_real + dis_err_fake
+            dis_err.backward()
+            dis_optimizer.step()
         
         generator_net.zero_grad()
         target = Variable(torch.ones(input.size()[0]))
