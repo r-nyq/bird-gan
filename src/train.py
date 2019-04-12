@@ -44,18 +44,20 @@ class VisdomLinePlotter(object):
 
 
 batchSize = 64
-imageSize = 64
+imageSize = 128
 
-transform = transforms.Compose(
-    [transforms.Resize(imageSize),
-     transforms.ToTensor(),
-     transforms.Normalize(
-         (0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-     ])
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+std=[0.229, 0.224, 0.225])
 
-dataset = dset.CIFAR10(root = '../data',
-                       download = True,
-                       transform = transform)
+transform = transforms.Compose([
+        transforms.Resize((imageSize, imageSize)),
+        transforms.ToTensor(),
+        normalize
+])
+
+dataset = dset.ImageFolder(
+    root = 'data/images',
+    transform=transform)
 dataloader = torch.utils.data.DataLoader(dataset,
                                          batch_size = batchSize,
                                          shuffle = True,
@@ -101,16 +103,16 @@ for epoch in range(25):
         output = discriminator_net(input)
         dis_err_real = criterion(output, target)
         
-        noise = Variable(torch.randn(input.size()[0], 100, 1, 1))
+        noise = Variable(torch.randn(input.size()[0], 200, 1, 1))
         fake = generator_net(noise)
         target = Variable(torch.zeros(input.size()[0]))
         output = discriminator_net(fake.detach())
         dis_err_fake = criterion(output, target)
         
-        if i % 20 == 0:
-            dis_err = dis_err_real + dis_err_fake
-            dis_err.backward()
-            dis_optimizer.step()
+        #if i % 20 == 0:
+        dis_err = dis_err_real + dis_err_fake
+        dis_err.backward()
+        dis_optimizer.step()
         
         generator_net.zero_grad()
         target = Variable(torch.ones(input.size()[0]))
