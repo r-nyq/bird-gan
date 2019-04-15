@@ -93,7 +93,7 @@ iteration_plotter = VisdomLinePlotter(env_name='Train Plots', xlabel='Iteration'
 
 img_id = None
 img_id2 = None
-for epoch in range(25):
+for epoch in range(200):
     vis.text('Epoc #' + str(epoch))
     
     for i, data in enumerate(dataloader, 0):
@@ -104,7 +104,7 @@ for epoch in range(25):
         output = discriminator_net(input)
         dis_err_real = criterion(output, target)
         
-        noise = Variable(torch.randn(input.size()[0], 200, 1, 1))
+        noise = Variable(torch.randn(input.size()[0], 400, 1, 1))
         fake = generator_net(noise)
         target = Variable(torch.zeros(input.size()[0]))
         output = discriminator_net(fake.detach())
@@ -125,7 +125,7 @@ for epoch in range(25):
         gen_id = iteration_plotter.plot('gen_loss', 'train', 'Generator Loss', i, gen_err.item())
         dis_id = iteration_plotter.plot('dis_loss', 'train', 'Discriminator Loss', i, dis_err.item())
         
-        print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, 25, i, len(dataloader), dis_err.item(), gen_err.item()))
+        print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, 200, i, len(dataloader), dis_err.item(), gen_err.item()))
         if i % 100 == 0:
             vutils.save_image(real, '%s/real_samples.png' % "./results", normalize = True)
             fake = generator_net(noise)
