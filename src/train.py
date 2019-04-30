@@ -13,39 +13,13 @@ from torch.autograd import Variable
 
 from visdom import Visdom
 
+import plotter
 import generator
 import discriminator
 
-class VisdomLinePlotter(object):
-    """Plots to Visdom"""
-    def __init__(self, env_name='main', xlabel='Epochs'):
-        self.viz = Visdom()
-        self.env = env_name
-        self.xlabel = xlabel
-        self.plots = {}
-    def plot(self, var_name, split_name, title_name, x, y):
-        if var_name not in self.plots:
-            self.plots[var_name] = self.viz.line(X=np.array([x,x]),
-                Y=np.array([y,y]),
-                env=self.env,
-                opts=dict(
-                    legend=[split_name],
-                    title=title_name,
-                    xlabel=self.xlabel,
-                    ylabel=var_name
-                )
-            )
-        else:
-            self.viz.line(X=np.array([x]),
-                Y=np.array([y]), env=self.env,
-                win=self.plots[var_name],
-                name=split_name,
-                update = 'append')
-
-
 cuda = torch.device('cuda')
 
-batchSize = 8
+batchSize = 64
 imageSize = 128
 
 normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
@@ -89,17 +63,17 @@ dis_optimizer = optim.Adam(discriminator_net.parameters(),
                         lr = 0.0002,
                         betas = (0.5, 0.999))
 
-epoch_plotter = VisdomLinePlotter(env_name='Train Plots')
+epoch_plotter = plotter.EpochPlotter(env_name='Train Plots')
 
 fake_image_vis = Visdom(env='Train Plots')
 vis = Visdom(env='Train Plots')
-iteration_plotter = VisdomLinePlotter(env_name='Train Plots', xlabel='Iteration')
 
 img_id = None
 img_id2 = None
 for epoch in range(5000):
-    vis.text('Epoc #' + str(epoch))
-    
+    text_id = vis.text('Epoc #' + str(epoch))
+    epoch_gen_err = []
+    epoch_dis_err = []
     for i, data in enumerate(dataloader, 0):
         discriminator_net.zero_grad()
         real, _ = data
@@ -125,9 +99,8 @@ for epoch in range(5000):
         gen_err.backward()
         gen_optimizer.step()
 
-        gen_id = iteration_plotter.plot('gen_loss', 'train', 'Generator Loss', i, gen_err.item())
-        dis_id = iteration_plotter.plot('dis_loss', 'train', 'Discriminator Loss', i, dis_err.item())
-        
+        epoch_gen_err.append(gen_err.item())
+        epoch_dis_err.append(dis_err.item())
         print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, 5000, i, len(dataloader), dis_err.item(), gen_err.item()))
         if i % 100 == 0:
             vutils.save_image(real, '%s/real_samples.png' % "./results", normalize = True)
@@ -138,7 +111,8 @@ for epoch in range(5000):
                 vis.close(win=img_id2)
             img_id = fake_image_vis.images(fake.detach().cpu().numpy())
             img_id2 = fake_image_vis.images(real.detach().cpu().numpy())
-    vis.close(win=gen_id)
-    vis.close(win=dis_id)
-    #epoch_plotter.plot('gen_loss', 'train', 'Generator Loss', epoch, gen_err.data.mean())
-    #epoch_plotter.plot('dis_loss', 'train', 'Discriminator Loss', epoch, dis_err.data.mean())
+
+    vis.close(win=text_id)
+
+    epoch_plotter.plot('epoch_gen_loss', 'train', 'Generator Epoch Loss', epoch, np.mean(epoch_gen_err))
+    epoch_plotter.plot('epoch_dis_loss', 'train', 'Discriminator Epoch Loss', epoch, np.mean(epoch_dis_err))
