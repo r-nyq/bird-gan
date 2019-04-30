@@ -1,4 +1,5 @@
 from visdom import Visdom
+import numpy as np
 
 class EpochPlotter(object):
     """Plots to Visdom"""
