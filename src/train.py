@@ -116,3 +116,6 @@ for epoch in range(5000):
 
     epoch_plotter.plot('epoch_gen_loss', 'train', 'Generator Epoch Loss', epoch, np.mean(epoch_gen_err))
     epoch_plotter.plot('epoch_dis_loss', 'train', 'Discriminator Epoch Loss', epoch, np.mean(epoch_dis_err))
+
+    torch.save(generator_net, './models/generator/gen_%03d_%06f' % (epoch, np.mean(epoch_gen_err)))
+    torch.save(discriminator_net, './models/discriminator/dis_%03d_%06f' % (epoch, np.mean(epoch_dis_err)))
