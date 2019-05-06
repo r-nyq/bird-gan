@@ -3,7 +3,7 @@
 ## Dataset
 Using [Caltech-UCSD Birds-200-2011](http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/CUB_200_2011.tgz)
 
-![](images/real_samples.png)
+![](images/real_samples.png)  
 *Training data sample*
 
 ## Requierments
@@ -24,14 +24,14 @@ Optional arguments
 - image_path
 
 ## Results
-![](images/fake_sampes_001.png)
+![](images/fake_samples_001.png)  
 *Generated sample after 1 epoch.*
 
-![](images/fake_sampes_050.png)
+![](images/fake_samples_050.png)  
 *Generated sample after 50 epochs.*
 
-![](images/fake_sampes_200.png)
+![](images/fake_samples_200.png)  
 *Generated sample after 200 epochs.*
 
-![](images/fake_birds.png)
+![](images/fake_birds.png)  
 *Generated sample after 500 epochs*
