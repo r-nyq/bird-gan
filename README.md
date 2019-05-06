@@ -35,3 +35,6 @@ Optional arguments
 
 ![](images/fake_birds.png)  
 *Generated sample after 500 epochs*
+
+## References
+{% bibliography --cited --file references.bib  %}
