@@ -6,7 +6,7 @@ Using [Caltech-UCSD Birds-200-2011](http://www.vision.caltech.edu/visipedia/CUB-
 ![](images/real_samples.png)  
 *Training data sample*
 
-## Requierments
+## Requirements
 - Pytorch
 - Visdom
 - Numpy
