@@ -14,14 +14,14 @@ Using [Caltech-UCSD Birds-200-2011](http://www.vision.caltech.edu/visipedia/CUB-
 ## Training
 Run `python3 src/train.py`  
 #### Arguments:
-- `generator_model`: Path to generator model to continue training.
-- `discriminator_model`: Path to discriminator model to continue training.
+- `generator_model`: Path to generator model to continue training. default=`None`
+- `discriminator_model`: Path to discriminator model to continue training. default=`None`
 - `epochs`: Epoch to train the networks. default=`25`
 
 ## Create images
 Run `python3 src/image_generator.py model "model path"`  
 #### Arguments
-- `image_path`: Path to save the generated images. default=`./generated_images/generated_img.png`
+- `image_path`: Path to save the generated images. default=`"./generated_images/generated_img.png"`
 
 ## Results
 ![](images/fake_samples_001.png)  
