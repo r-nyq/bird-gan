@@ -22,6 +22,7 @@ Run `python3 src/train.py`
 Run `python3 src/image_generator.py model "model path"`  
 #### Arguments
 - `image_path`: Path to save the generated images. default=`"./generated_images/generated_img.png"`
+- `image_count`: How many images that will ne generated. default=`1`
 
 ## Results
 ![](images/fake_samples_001.png)  
