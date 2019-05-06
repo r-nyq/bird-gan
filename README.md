@@ -19,7 +19,7 @@ Optional arguments
 - epochs
 
 ## Create image
-Run `pythin3 src/image_generator.py model "model path"`  
+Run `python3 src/image_generator.py model "model path"`  
 Optional arguments
 - image_path
 
