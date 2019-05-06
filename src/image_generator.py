@@ -10,12 +10,14 @@ parser.add_argument("model", help="Generator model path",
 	type=str)
 parser.add_argument("--image_path", help="Path for image output",
 	type=str, default='./generated_images/generated_img.png')
+parser.add_argument("--image_count", help="How many images that should be generated",
+    type=int, default=1)
 
 args = parser.parse_args()
 
 model = torch.load(args.model)
 model.eval()
 
-noise = Variable(torch.randn(1, 400, 1, 1)).cuda()
-fake = model(noise).cuda()
+noise = Variable(torch.randn(args.image_count, 400, 1, 1))
+fake = model(noise)
 vutils.save_image(fake, args.image_path ,normalize = True)
