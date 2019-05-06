@@ -12,7 +12,10 @@ Using [Caltech-UCSD Birds-200-2011](http://www.vision.caltech.edu/visipedia/CUB-
 - Numpy
 
 ## Training
-Run `python3 src/train.py`  
+Run `python3 -m visdom.server` to get a training progreas dashbord on [http://localhost:8097/](http://localhost:8097/)
+
+
+Run `python3 src/train.py`
 #### Arguments:
 - `generator_model`: Path to generator model to continue training. default=`None`
 - `discriminator_model`: Path to discriminator model to continue training. default=`None`
